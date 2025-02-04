@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { KeyRound, UserRound } from 'lucide-react';
 import StartButton from './StartButton';
+import TaskSection from './TaskSection';
 
 interface Profile {
   name: string;
@@ -32,6 +33,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfile }) => {
         </p>
       </div>
       <StartButton disabled={!selectedProfile} />
+      <TaskSection />
     </div>
   );
 };
