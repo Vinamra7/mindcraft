@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ profiles, selectedProfile, onProfileS
           className={`absolute bottom-0 left-0 flex items-center hover:bg-gray-700 p-4 rounded-md transition-all duration-30 justify-start`}
         >
           <Settings className={''} />
-          {isOpen && <span className="whitespace-nowrap">Advanced Settings</span>}
+          {isOpen && <span className="whitespace-nowrap">&nbsp;Advanced Settings</span>}
         </Link>
       {/* </div> */}
     </div>
