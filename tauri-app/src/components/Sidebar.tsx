@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Profile {
   name: string;
@@ -46,6 +47,15 @@ const Sidebar: React.FC<SidebarProps> = ({ profiles, selectedProfile, onProfileS
             </li>
           ))}
       </ul>
+      {/* <div className="absolute bottom-0 left-0 w-full p-4"> */}
+        <Link
+          to="/advanced-settings"
+          className={`absolute bottom-0 left-0 flex items-center hover:bg-gray-700 p-4 rounded-md transition-all duration-30 justify-start`}
+        >
+          <Settings className={''} />
+          {isOpen && <span className="whitespace-nowrap">Advanced Settings</span>}
+        </Link>
+      {/* </div> */}
     </div>
   );
 };

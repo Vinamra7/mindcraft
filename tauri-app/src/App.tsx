@@ -4,6 +4,7 @@ import HomePage from './components/HomePage';
 import ApiKeyPage from './components/ApiKeyPage';
 import ProfilePage from './components/ProfilePage';
 import Sidebar from './components/Sidebar';
+import AdvancedSettingsPage from './components/AdvancedSettingsPage';
 
 interface Profile {
   name: string;
@@ -26,7 +27,7 @@ function App() {
           selectedProfile={selectedProfile}
           onProfileSelect={handleProfileSelect}
         />
-        <div className="flex-1 flex items-center justify-center pt-10">
+        <div className="flex-1 flex flex-col items-center pt-10 overflow-auto">
           <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
             <Routes>
               <Route
@@ -38,6 +39,7 @@ function App() {
                 path="/profile"
                 element={<ProfilePage setProfiles={setProfiles} />}
               />
+              <Route path="/advanced-settings" element={<AdvancedSettingsPage />} />
             </Routes>
           </div>
         </div>
