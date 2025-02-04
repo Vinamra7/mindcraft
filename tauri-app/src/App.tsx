@@ -1,50 +1,48 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './components/HomePage';
+import ApiKeyPage from './components/ApiKeyPage';
+import ProfilePage from './components/ProfilePage';
+import Sidebar from './components/Sidebar';
+
+interface Profile {
+  name: string;
+  modelType: string;
+}
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const handleProfileSelect = (profile: Profile | null) => {
+    setSelectedProfile(profile);
+  };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
+    <Router>
+      <div className="flex h-screen bg-gray-900 text-gray-100">
+        <Sidebar
+          profiles={profiles}
+          selectedProfile={selectedProfile}
+          onProfileSelect={handleProfileSelect}
         />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+        <div className="flex-1 flex items-center justify-center pt-10">
+          <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+            <Routes>
+              <Route
+                path="/"
+                element={<HomePage selectedProfile={selectedProfile} />}
+              />
+              <Route path="/api-key" element={<ApiKeyPage />} />
+              <Route
+                path="/profile"
+                element={<ProfilePage setProfiles={setProfiles} />}
+              />
+            </Routes>
+          </div>
+        </div>
+      </div>
+    </Router>
   );
 }
 

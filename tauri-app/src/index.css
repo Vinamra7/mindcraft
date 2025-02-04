@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Additional Minecraft-style customizations */
+.bg-gray-800 {
+   background-color: #1a1a1a;
+}
+
+.bg-gray-900 {
+   background-color: #101010;
+}
+
+.text-gray-100 {
+   color: #dcdcdc;
+}
+
+.text-gray-300 {
+   color: #a9a9a9;
+}
+
+.border-gray-600 {
+   border-color: #404040;
+}
+
+.bg-indigo-600 {
+   background-color: #5c6ac4;
+}
+
+.hover\:bg-indigo-700:hover {
+   background-color: #4c56b4;
+}
+
+.bg-green-600 {
+   background-color: #5a7a5a;
+}
+
+.hover\:bg-green-700:hover {
+   background-color: #4a6a4a;
+}
+
+.focus\:ring-indigo-500:focus {
+   --tw-ring-color: #5c6ac4;
+}
+
+.focus\:ring-green-500:focus {
+   --tw-ring-color: #5s7a5s;
+}
+
+/* Input box styles */
+.input-box {
+   border: 2px solid #333333;
+   /* Dim border */
+   background-color: #1a1a1a;
+   color: #dcdcdc;
+   padding: 0.5rem;
+   margin-bottom: 1rem;
+   border-radius: 0.375rem;
+   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.input-box:focus {
+   border-color: #5c6ac4;
+   /* Highlight on focus */
+   outline: none;
+   box-shadow: 0 0 0 3px rgba(92, 106, 196, 0.5);
+   /* Focus ring */
+}
