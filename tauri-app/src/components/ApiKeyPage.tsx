@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { mkdir, exists, BaseDirectory, create, readTextFile } from '@tauri-apps/plugin-fs';
 
 const providers = [
   "OPENAI API",
@@ -20,11 +21,58 @@ const ApiKeyPage: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = useState(providers[0]);
   const [apiKey, setApiKey] = useState('');
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle API key storage for the selected provider
-    console.log('Provider:', selectedProvider);
-    console.log('API Key:', apiKey);
+
+    try{
+      // Ensure directory exists
+      if (!(await exists('', { baseDir: BaseDirectory.AppData }))) {
+        await mkdir('', { baseDir: BaseDirectory.AppData, recursive: true });
+      }
+
+      // Define the mapping between provider names and key names
+      const providerToKeyName: { [key: string]: string } = {
+        "OPENAI API": "OPENAI_API_KEY",
+        "OPENAI ORG": "OPENAI_ORG_ID",
+        "GEMINI": "GEMINI_API_KEY",
+        "ANTHROPIC": "ANTHROPIC_API_KEY",
+        "REPLICATE": "REPLICATE_API_KEY",
+        "GROQ CLOUD": "GROQCLOUD_API_KEY",
+        "HUGGINGFACE": "HUGGINGFACE_API_KEY",
+        "QWEN": "QWEN_API_KEY",
+        "XAI": "XAI_API_KEY",
+        "MISTRAL": "MISTRAL_API_KEY",
+        "DEEPSEEK": "DEEPSEEK_API_KEY"
+      };
+
+      let existingKeys: { [key: string]: string } = {};
+    
+      // Try to read existing keys if file exists
+      if (await exists('keys.json', { baseDir: BaseDirectory.AppData })) {
+        const existingContent = await readTextFile('keys.json', { baseDir: BaseDirectory.AppData });
+        if (existingContent) {
+          existingKeys = JSON.parse(existingContent);
+        }
+      }
+  
+      // Update the specific key while preserving others
+      const keyName = providerToKeyName[selectedProvider];
+      existingKeys[keyName] = apiKey;
+  
+      // Create or overwrite the file with updated content
+      const file = await create('keys.json', { baseDir: BaseDirectory.AppData });
+      await file.write(new TextEncoder().encode(JSON.stringify(existingKeys, null, 4)));
+      await file.close();
+  
+      // Optional: Show success message
+      alert('API key saved successfully!');
+      
+      // Clear the input
+      setApiKey('');
+
+    }catch(error){
+      console.error(error);
+    }
   };
 
   return (

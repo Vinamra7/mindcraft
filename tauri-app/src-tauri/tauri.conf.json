@@ -14,7 +14,12 @@
       {
         "title": "Mindcraft",
         "width": 850,
-        "height": 600
+        "height": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "minWidth": 600,
+        "minHeight": 400
       }
     ],
     "security": {
