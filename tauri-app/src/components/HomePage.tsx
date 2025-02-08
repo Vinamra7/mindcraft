@@ -17,7 +17,7 @@ interface HomePageProps {
 const HomePage: React.FC<HomePageProps> = ({ selectedProfile }) => {
   return (
     <div className="flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl font-bold mb-6">Mindcraft</h1>
+      <h1 className="text-4xl font-bold mb-6">MINDCRAFT</h1>
       <div className="flex space-x-4 mb-6">
         <Link to="/api-key" className="flex items-center bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md">
           <KeyRound className="mr-2" />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import ApiKeyPage from './components/ApiKeyPage';
@@ -34,7 +34,19 @@ function App() {
     }
   }
 
+  const prevProfilesLength = useRef(profiles.length);
+
   useEffect(() => {
+
+    const currentLength = profiles.length;
+    const prevLength = prevProfilesLength.current;
+    prevProfilesLength.current = currentLength;
+  
+    // Only proceed if a new profile was added
+    if (currentLength <= prevLength) {
+      return;
+    }
+
     console.log('Profiles changed: ', profiles);
     if(profiles.length === 0){return;}
     const newProfile = profiles.at(-1);
@@ -42,20 +54,22 @@ function App() {
       toast.error('Failed to add profile. Please try again.');
       return;
     }
-    
-    for(let i: number = 0; i< profiles.length - 1; i++) {
-      const profile: Profile = profiles[i];
-      if (profile.name === newProfile.name) {
-        toast.error('Profile with the same name already exists.');
-        setProfiles(profiles.slice(0, -1));
-        return;
-      }
-    };
-    toast.promise(uploadNewProfile(newProfile), {
-      loading: 'Saving profile...',
-      success: 'Profile saved successfully.',
-      error: 'Failed to save profile. Please try again.'
-    });
+    const profilesToCheck = profiles.slice(0, -1);
+    const hasDuplicate = profilesToCheck.some((profile) => profile.name === newProfile.name);
+    if (hasDuplicate) {
+      toast.error('Profile with the same name already exists.');
+      setProfiles(profilesToCheck); //remove the last profile
+      return;
+    }else {
+      toast.promise(
+        uploadNewProfile(newProfile),
+        {
+          loading: 'Saving profile...',
+          success: 'Profile saved successfully.',
+          error: 'Failed to save profile. Please try again.',
+        }
+      );
+    }
   }, [profiles]);
 
   return (

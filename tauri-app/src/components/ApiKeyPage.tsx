@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
+import toast, { Toaster } from 'react-hot-toast';
 
 const providers = [
   "OPENAI API", "OPENAI ORG", "GEMINI", "ANTHROPIC", 
@@ -85,10 +86,10 @@ const ApiKeyPage: React.FC = () => {
       // Update local state with new keys
       setSavedKeys(existingKeys); // Add this line
   
-      alert('API key saved successfully!');
+      toast.success('API key saved successfully!');
     } catch (error) {
       console.error(error);
-      alert('Error saving API key!');
+      toast.error('Error saving API key!');
     }
   };
 
@@ -102,6 +103,7 @@ const ApiKeyPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
+      <Toaster />
       <h1 className="text-2xl font-bold mb-4">Add API Key</h1>
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="mb-4">
