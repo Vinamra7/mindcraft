@@ -6,7 +6,8 @@ import TaskSection from './TaskSection';
 
 interface Profile {
   name: string;
-  modelType: string;
+  model: string;
+  additionalConfig?: string;
 }
 
 interface HomePageProps {

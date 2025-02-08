@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 
 interface Profile {
   name: string;
-  modelType: string;
+  model: string;
+  additionalConfig?: string;
 }
 
 interface SidebarProps {
