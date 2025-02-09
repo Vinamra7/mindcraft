@@ -11,10 +11,10 @@ interface Profile {
 }
 
 interface HomePageProps {
-  selectedProfile: Profile | null;
+  selectedProfiles: Profile[];
 }
 
-const HomePage: React.FC<HomePageProps> = ({ selectedProfile }) => {
+const HomePage: React.FC<HomePageProps> = ({ selectedProfiles }) => {
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <h1 className="text-4xl font-bold mb-6">MINDCRAFT</h1>
@@ -29,11 +29,13 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfile }) => {
         </Link>
       </div>
       <div className="bg-black bg-opacity-50 p-4 rounded-lg w-full max-w-md mb-6">
-        <p className={selectedProfile ? 'text-green-400' : 'text-red-500'}>
-          Current Profile: {selectedProfile ? selectedProfile.name : 'None'}
+        <p className={selectedProfiles.length > 0 ? 'text-green-400' : 'text-red-500'}>
+          Current Profile: {' '}
+          {selectedProfiles.length > 0 ? 
+            selectedProfiles.map((profile) => profile.name).join(', ') : 'None'}
         </p>
       </div>
-      <StartButton disabled={!selectedProfile} />
+      <StartButton disabled={selectedProfiles.length === 0} />
       <TaskSection />
     </div>
   );

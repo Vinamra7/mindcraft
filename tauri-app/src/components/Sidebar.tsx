@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, User, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Settings, Trash } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Profile {
@@ -10,15 +10,28 @@ interface Profile {
 
 interface SidebarProps {
   profiles: Profile[];
-  selectedProfile: Profile | null;
-  onProfileSelect: (profile: Profile | null) => void;
+  selectedProfiles: Profile[];
+  onProfileSelect: (profile: Profile[]) => void;
+  onProfileDelete: (profileName: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ profiles, selectedProfile, onProfileSelect }) => {
+const Sidebar: React.FC<SidebarProps> = ({ profiles, selectedProfiles, onProfileSelect, onProfileDelete }) => {
   const [isOpen, setIsOpen] = useState(true);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleCheckboxChange = (profile: Profile) => {
+    const isSelected = selectedProfiles.some((p) => p.name === profile.name);
+    let newSelectedProfiles: Profile[] = [];
+
+    if (isSelected) {
+      newSelectedProfiles = selectedProfiles.filter((p) => p.name !== profile.name);
+    } else {
+      newSelectedProfiles = [...selectedProfiles, profile];
+    }
+    onProfileSelect(newSelectedProfiles);
   };
 
   return (
@@ -38,20 +51,41 @@ const Sidebar: React.FC<SidebarProps> = ({ profiles, selectedProfile, onProfileS
           profiles.map((profile, index) => (
             <li
               key={index}
-              onClick={() => onProfileSelect(profile)}
+
               className={`flex items-center p-4 cursor-pointer hover:bg-gray-700 ${
-                selectedProfile?.name === profile.name ? 'bg-gray-600' : ''
+                selectedProfiles.some((p) => p.name === profile.name) ? 'bg-gray-600' : ''
               }`}
-            >
+            >              {/* Custom Checkbox */}
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="hidden"
+                checked={selectedProfiles.some((p) => p.name === profile.name)}
+                onChange={() => handleCheckboxChange(profile)}
+              />
+              <span
+                className={`mr-2 w-4 h-4 border-2 border-gray-500 rounded flex items-center justify-center transition-colors duration-200
+                  ${selectedProfiles.some((p) => p.name === profile.name) ? 'bg-green-600 border-green-600' : 'bg-gray-800'} `}>
+              </span>
               <User className="mr-2" />
               {profile.name}
+            </label>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onProfileDelete(profile.name);
+              }}
+              className="ml-auto hover:bg-red-700 rounded-full p-1"
+            >
+              <Trash />
+            </button>
             </li>
           ))}
       </ul>
       {/* <div className="absolute bottom-0 left-0 w-full p-4"> */}
         <Link
           to="/advanced-settings"
-          className={`absolute bottom-0 left-0 flex items-center hover:bg-gray-700 p-4 rounded-md transition-all duration-30 justify-start`}
+          className={`absolute bottom-0 left-0 flex items-center hover:bg-gray-700 p-4 rounded-md transition-all duration-300 justify-start`}
         >
           <Settings className={''} />
           {isOpen && <span className="whitespace-nowrap">&nbsp;Advanced Settings</span>}

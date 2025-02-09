@@ -6,7 +6,9 @@ import ProfilePage from './components/ProfilePage';
 import Sidebar from './components/Sidebar';
 import AdvancedSettingsPage from './components/AdvancedSettingsPage';
 import toast, { Toaster } from 'react-hot-toast';
-import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile, readDir } from '@tauri-apps/plugin-fs';
+import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile, readDir, remove } from '@tauri-apps/plugin-fs';
+import {ask} from '@tauri-apps/plugin-dialog';
+
 
 interface Profile {
   name: string;
@@ -18,12 +20,34 @@ interface Profile {
 
 function App() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+  const [selectedProfiles, setSelectedProfiles] = useState<Profile[]>([]);
   // const [effectLock, setEffectLock] = useState(false); // To prevent race condition of useEffect
 
-  const handleProfileSelect = (profile: Profile | null) => {
-    setSelectedProfile(profile);
+  const handleProfileSelect = (profiles: Profile[]) => {
+    setSelectedProfiles(profiles);
   };
+
+  const handleProfileDelete = async (profileName: string) => {
+
+    const confirm = await ask(`Are you sure you want to delete profile ${profileName}?`,{
+      title: `Delete Profile`,
+      kind: `warning`,
+    });
+    if(!confirm){return;}
+    await toast.promise(
+      remove(`${profileName}.json`, { baseDir: BaseDirectory.AppData }),
+      {
+        loading: 'Deleting profile...',
+        success: 'Profile deleted successfully.',
+        error: 'Failed to delete profile. Please try again.',
+      }
+    );
+    setProfiles(profiles => profiles.filter((profile) => profile.name !== profileName));
+
+    // If deleted profile was aldo selected
+    setSelectedProfiles(selectedProfiles => selectedProfiles.filter((profile) => profile.name !== profileName));
+
+  }
 
   const uploadNewProfile = async(profile: Profile) =>{
     try{
@@ -117,15 +141,16 @@ function App() {
         <Toaster />
         <Sidebar
           profiles={profiles}
-          selectedProfile={selectedProfile}
+          selectedProfiles={selectedProfiles}
           onProfileSelect={handleProfileSelect}
+          onProfileDelete={handleProfileDelete}
         />
         <div className="flex-1 flex flex-col items-center pt-10 overflow-auto">
           <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
             <Routes>
               <Route
                 path="/"
-                element={<HomePage selectedProfile={selectedProfile} />}
+                element={<HomePage selectedProfiles={selectedProfiles} />}
               />
               <Route path="/api-key" element={<ApiKeyPage />} />
               <Route

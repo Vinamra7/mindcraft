@@ -15,8 +15,18 @@
     "fs:read-all",
     {
       "identifier": "fs:scope",
-      "allow": [{ "path": "$APPDATA" }, { "path": "$APPDATA/**" }, {"path": "**/*"}]
-    }
+      "allow": [
+        {
+          "path": "$APPDATA"
+        },
+        {
+          "path": "$APPDATA/**"
+        },
+        {
+          "path": "**/*"
+        }
+      ]
+    },
+    "dialog:default"
   ]
-
 }
