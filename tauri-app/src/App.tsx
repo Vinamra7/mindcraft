@@ -6,7 +6,7 @@ import ProfilePage from './components/ProfilePage';
 import Sidebar from './components/Sidebar';
 import AdvancedSettingsPage from './components/AdvancedSettingsPage';
 import toast, { Toaster } from 'react-hot-toast';
-import { mkdir, exists, BaseDirectory, writeTextFile } from '@tauri-apps/plugin-fs';
+import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile, readDir } from '@tauri-apps/plugin-fs';
 
 interface Profile {
   name: string;
@@ -14,9 +14,12 @@ interface Profile {
   additionalConfig?: string;
 }
 
+// ☠️ There are 2 useEffects in this component be careful, changes can cause infinite loop or race conditions
+
 function App() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+  // const [effectLock, setEffectLock] = useState(false); // To prevent race condition of useEffect
 
   const handleProfileSelect = (profile: Profile | null) => {
     setSelectedProfile(profile);
@@ -35,6 +38,42 @@ function App() {
   }
 
   const prevProfilesLength = useRef(profiles.length);
+
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        // Check if directory exists
+        if (!(await exists('', { baseDir: BaseDirectory.AppData }))) {
+          await mkdir('', { baseDir: BaseDirectory.AppData, recursive: true });
+          return; // Exit if directory was just created (will be empty)
+        }
+        const entries = await readDir('', { baseDir: BaseDirectory.AppData });
+        
+        const loadedProfiles: Profile[] = [];
+        for (const entry of entries) {
+          if (!entry.name || !entry.name.endsWith('.json') ||  entry.name === 'keys.json') continue;
+          try {
+            const fileContent = await readTextFile(entry.name, { baseDir: BaseDirectory.AppData });
+            const profile = JSON.parse(fileContent) as Profile;
+            
+            // Validate profile structure
+            if (profile.name && profile.model) loadedProfiles.push(profile);
+            
+          } catch (parseError) {
+            console.error(`Error parsing ${entry.name}:`, parseError);
+            toast.error(`Failed to load profile ${entry.name}`);
+          }
+        }
+  
+        setProfiles(loadedProfiles);  
+      } catch (error) {
+        console.error('Error loading profiles:', error);
+        toast.error('Failed to load profiles');
+      }
+    };
+  
+    loadProfiles();
+  }, []); // Run Once
 
   useEffect(() => {
 
@@ -65,12 +104,12 @@ function App() {
         uploadNewProfile(newProfile),
         {
           loading: 'Saving profile...',
-          success: 'Profile saved successfully.',
+          success: 'Profile loaded successfully.',
           error: 'Failed to save profile. Please try again.',
         }
       );
     }
-  }, [profiles]);
+  }, [profiles]);// Run when profiles change
 
   return (
     <Router>

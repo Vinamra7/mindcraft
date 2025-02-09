@@ -51,7 +51,7 @@ const ApiKeyPage: React.FC = () => {
     };
   
     loadSavedKeys();
-  }, []); // Empty dependency array added here
+  }, []); // Run Once
   
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -84,8 +84,7 @@ const ApiKeyPage: React.FC = () => {
       );
   
       // Update local state with new keys
-      setSavedKeys(existingKeys); // Add this line
-  
+      setSavedKeys(existingKeys);
       toast.success('API key saved successfully!');
     } catch (error) {
       console.error(error);
@@ -93,7 +92,6 @@ const ApiKeyPage: React.FC = () => {
     }
   };
 
-  // Update API key input when provider changes
   const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newProvider = e.target.value;
     setSelectedProvider(newProvider);
