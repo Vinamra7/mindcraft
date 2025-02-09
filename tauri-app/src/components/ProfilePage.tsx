@@ -54,7 +54,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setProfiles }) => {
     reader.readAsText(file);
   };
 
-  const keyNameNotAllowed = (name: string) => {
+  const botNamesThatAreNotAllowed = (name: string) => {
     // keys.json hold api key
     return name.toLowerCase() === 'keys' || name.toLowerCase() === 'settings';
   }
@@ -67,7 +67,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setProfiles }) => {
       if (!fileContent) return setError("Please upload a valid JSON file.");
       try {
         const profile = JSON.parse(fileContent);
-        if(keyNameNotAllowed(profile.name)) return setError("Bot name cannot be 'keys'"); //keys.json hold api key
+        //keys.json hold api key ans settings.json hold settings
+        if(botNamesThatAreNotAllowed(profile.name)) return setError(`Bot name cannot be ${profile.name}`);
         setProfiles((prev) => [...prev, profile]);
       } catch {
         setError("Invalid JSON data in file. Please check the file content.");
@@ -75,7 +76,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setProfiles }) => {
     } else {
       if (!botName || !modelType)
         return setError("Please enter both bot name and model type.");
-      if(keyNameNotAllowed(botName)) return setError("Bot name cannot be 'keys'");
+      if(botNamesThatAreNotAllowed(botName)) return setError(`Bot name cannot be ${botName}`);
       setProfiles((prev) => [...prev, { name: botName, model: modelType }]);
     }
   };

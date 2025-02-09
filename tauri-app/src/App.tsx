@@ -75,7 +75,7 @@ function App() {
         
         const loadedProfiles: Profile[] = [];
         for (const entry of entries) {
-          if (!entry.name || !entry.name.endsWith('.json') ||  entry.name === 'keys.json') continue;
+          if (!entry.name || !entry.name.endsWith('.json') ||  entry.name === 'keys.json' || entry.name === 'settings.json') continue;
           try {
             const fileContent = await readTextFile(entry.name, { baseDir: BaseDirectory.AppData });
             const profile = JSON.parse(fileContent) as Profile;

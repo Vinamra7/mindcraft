@@ -1,10 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Info } from 'lucide-react';
+import {mkdir, exists, BaseDirectory, writeTextFile, readTextFile} from '@tauri-apps/plugin-fs';
+import toast, {Toaster} from 'react-hot-toast';
 
+interface settings {
+  host: string;
+  port: string;
+  auth: string;
+  hostMindserver: boolean;
+  mindserverHost: string;
+  mindserverPort: string;
+  loadMemory: boolean;
+  initMessage: string;
+  onlyChatWith: string;
+  language: string;
+  showBotViews: boolean;
+  allowInsecureCoding: boolean;
+  codeTimeoutMins: string;
+  maxMessages: string;
+  numExamples: string;
+  maxCommands: string;
+  verboseCommands: boolean;
+  narrateBehavior: boolean;
+  chatBotMessages: boolean;
+}
 const AdvancedSettingsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<settings>({
     host: '127.0.0.1',
     port: '55916',
     auth: 'offline',
@@ -42,10 +65,40 @@ const AdvancedSettingsPage: React.FC = () => {
     });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        if (!(await exists('settings.json', { baseDir: BaseDirectory.AppData }))) {
+          return;
+        }
+        const settingsString = await readTextFile('settings.json', { baseDir: BaseDirectory.AppData });
+        const loadedSettings = JSON.parse(settingsString);
+        setSettings(loadedSettings);
+      } catch (error) {
+        console.error('Error loading saved settings:', error);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('Advanced Settings:', settings);
-    // Handle saving settings here
+    
+    // Ensure directory exists
+    if (!(await exists('', { baseDir: BaseDirectory.AppData }))) {
+      await mkdir('', { baseDir: BaseDirectory.AppData, recursive: true });
+    }
+    const settingsString = JSON.stringify(settings, null, 2);
+    await toast.promise(
+      writeTextFile('settings.json', settingsString, { baseDir: BaseDirectory.AppData }),
+      {
+        loading: 'Saving settings...',
+        success: 'Settings saved successfully.',
+        error: 'Failed to save settings. Please try again.',
+      }
+    );
+
   };
 
   const Hint: React.FC<{ text: string }> = ({ text }) => (
@@ -59,6 +112,7 @@ const AdvancedSettingsPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
+      <Toaster />
       <h1 className="text-2xl font-bold mb-4">Advanced Settings</h1>
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="mb-4">
