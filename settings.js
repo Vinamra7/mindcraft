@@ -1,6 +1,6 @@
 export default 
 {
-    "minecraft_version": "1.20.4", // supports up to 1.21.1
+    "minecraft_version": "1.21.1", // supports up to 1.21.1
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
     "port": 55916,
     "auth": "offline", // or "microsoft"
@@ -13,10 +13,11 @@ export default
     // the base profile is shared by all bots for default prompts/examples/modes
     "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
     "profiles": [
-        "./andy.json",
+        // "./andy.json",
+        // "./profiles/freeguy.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
-        // "./profiles/gemini.json",
+        "./profiles/gemini.json",
         // "./profiles/llama.json",
         // "./profiles/qwen.json",
         // "./profiles/mistral.json",
@@ -44,4 +45,4 @@ export default
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
-}
+};
