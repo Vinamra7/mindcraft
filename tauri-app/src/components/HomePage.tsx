@@ -4,9 +4,16 @@ import { KeyRound, UserRound } from 'lucide-react';
 import StartButton from './StartButton';
 import TaskSection from './TaskSection';
 
+interface ModelConfig {
+  api: string;
+  url: string;
+  model: string;
+}
+
 interface Profile {
   name: string;
-  model: string;
+  model: string | ModelConfig;
+  embedding?: string | ModelConfig;
   additionalConfig?: string;
 }
 

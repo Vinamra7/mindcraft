@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import settings from '../../settings.js';
+import process from 'process';
 
 // Singleton mindserver proxy for the main process
 class MainProxy {
@@ -15,7 +16,7 @@ class MainProxy {
     }
 
     connect() {
-        if (this.connected) return;
+        if (this.connected) { return; }
 
         this.socket = io(`http://${settings.mindserver_host}:${settings.mindserver_port}`);
         this.connected = true;

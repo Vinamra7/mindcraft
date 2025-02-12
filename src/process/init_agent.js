@@ -1,3 +1,4 @@
+/* global process */
 import { Agent } from '../agent/agent.js';
 import yargs from 'yargs';
 

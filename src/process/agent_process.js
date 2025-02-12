@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import process from 'process';
 import { mainProxy } from './main_proxy.js';
 
 export class AgentProcess {
@@ -11,13 +12,13 @@ export class AgentProcess {
         args.push('-p', profile);
         args.push('-c', count_id);
         if (load_memory)
-            args.push('-l', load_memory);
+            { args.push('-l', load_memory); }
         if (init_message)
-            args.push('-m', init_message);
+            { args.push('-m', init_message); }
         if (task_path)
-            args.push('-t', task_path);
+            { args.push('-t', task_path); }
         if (task_id)
-            args.push('-i', task_id);
+           { args.push('-i', task_id); }
 
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
@@ -55,7 +56,7 @@ export class AgentProcess {
     }
 
     stop() {
-        if (!this.running) return;
+        if (!this.running) { return; }
         this.process.kill('SIGINT');
     }
 

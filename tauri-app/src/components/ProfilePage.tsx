@@ -2,9 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import sampleBotProfile from './sampleBotProfile.json';
 
+interface ModelConfig {
+  api: string;
+  url: string;
+  model: string;
+}
+
 interface Profile {
   name: string;
-  model: string;
+  model: string | ModelConfig;
+  embedding?: string | ModelConfig;
   additionalConfig?: string;
 }
 
@@ -17,6 +24,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setProfiles }) => {
   const [inputMethod, setInputMethod] = useState<'simple' | 'advanced'>('simple');
   const [botName, setBotName] = useState('');
   const [modelType, setModelType] = useState('');
+  const [embedding, setEmbedding] = useState('');
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +33,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setProfiles }) => {
     const { name, value } = e.target;
     if (name === 'bot-name') setBotName(value);
     if (name === 'model-type') setModelType(value);
+    if (name === 'embedding-type') setEmbedding(value);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +86,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setProfiles }) => {
       if (!botName || !modelType)
         return setError("Please enter both bot name and model type.");
       if(botNamesThatAreNotAllowed(botName)) return setError(`Bot name cannot be ${botName}`);
-      setProfiles((prev) => [...prev, { name: botName, model: modelType }]);
+      setProfiles((prev) => [...prev, { name: botName, model: modelType, embedding: embedding }]);
     }
   };
 
@@ -161,6 +170,20 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ setProfiles }) => {
                 value={modelType}
                 onChange={handleInputChange}
                 className="input-box w-full mt-1"
+              />
+            </div>
+            <div className='mb-4'>
+              <label htmlFor='embedding-type' className='block text-sm font-medium text-gray-300'>
+                Embedding
+              </label>
+              <input
+              type='text'
+              name='embedding-type'
+              id='embedding-type'
+              placeholder='Enter embedding type'
+              value={embedding}
+              onChange={handleInputChange}
+              className='input-box w-full mt-1'
               />
             </div>
           </>

@@ -9,10 +9,16 @@ import toast, { Toaster } from 'react-hot-toast';
 import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile, readDir, remove } from '@tauri-apps/plugin-fs';
 import {ask} from '@tauri-apps/plugin-dialog';
 
+interface ModelConfig {
+  api: string;
+  url: string;
+  model: string;
+}
 
 interface Profile {
   name: string;
-  model: string;
+  model: string | ModelConfig;
+  embedding?: string | ModelConfig;
   additionalConfig?: string;
 }
 

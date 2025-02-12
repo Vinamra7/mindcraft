@@ -2,9 +2,16 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, User, Settings, Trash } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+interface ModelConfig {
+  api: string;
+  url: string;
+  model: string;
+}
+
 interface Profile {
   name: string;
-  model: string;
+  model: string | ModelConfig;
+  embedding?: string | ModelConfig;
   additionalConfig?: string;
 }
 
