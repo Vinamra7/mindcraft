@@ -4,6 +4,11 @@ import { Info } from 'lucide-react';
 import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
 import toast, { Toaster } from 'react-hot-toast';
 
+interface AdvancedSettingsPageProps {
+  onPortChange: (port: number) => void;
+  onVersionChange: (version: string) => void;
+}
+
 interface settings {
   minecraft_version: string;
   host: string;
@@ -30,7 +35,7 @@ interface settings {
   chat_bot_messages: boolean;
 }
 
-const AdvancedSettingsPage: React.FC = () => {
+const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange, onVersionChange}) => {
   const navigate = useNavigate();
   const [settings, setSettings] = useState<settings>({
     minecraft_version: '1.20.4',
@@ -58,33 +63,6 @@ const AdvancedSettingsPage: React.FC = () => {
     chat_bot_messages: true,
   });
 
-  const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const target = event.target;
-    let value: string | number | boolean | string[] = 
-      target instanceof HTMLInputElement && target.type === 'checkbox' 
-        ? target.checked 
-        : target.value;
-    const name = target.name;
-
-    // Convert string to number for numeric fields
-    if (['port', 'mindserver_port', 'code_timeout_mins', 'relevant_docs_count', 
-         'max_messages', 'num_examples', 'max_commands'].includes(name)) {
-      value = value === '' ? 0 : Number(value);
-    }
-
-    // Handle array for only_chat_with
-    if (name === 'only_chat_with') {
-      value = (value as string).split(',').map(item => item.trim()).filter(item => item !== '');
-    }
-
-    setSettings({
-      ...settings,
-      [name]: value,
-    });
-  };
-
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -101,6 +79,14 @@ const AdvancedSettingsPage: React.FC = () => {
 
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    onPortChange(settings.port);
+  },[settings.port, onPortChange]);
+
+  useEffect(() => {
+    onVersionChange(settings.minecraft_version);
+  },[settings.minecraft_version, onVersionChange]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -143,7 +129,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id='minecraft_version'
             className='input-box w-full'
             value={settings.minecraft_version}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, minecraft_version: event.target.value})
+            }}
           />
         </div>
 
@@ -158,7 +146,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="host"
             className="input-box w-full"
             value={settings.host}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, host: event.target.value})
+            }}
           />
         </div>
 
@@ -173,7 +163,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="port"
             className="input-box w-full"
             value={settings.port}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, port: Number(event.target.value)})
+            }}
           />
         </div>
 
@@ -187,7 +179,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="auth"
             className="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-200"
             value={settings.auth}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, auth: event.target.value})
+            }}
           >
             <option value="offline">offline</option>
             <option value="microsoft">microsoft</option>
@@ -205,7 +199,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="host_mindserver"
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-600 rounded-md"
             checked={settings.host_mindserver}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, host_mindserver: event.target.checked})
+            }}
           />
         </div>
 
@@ -220,7 +216,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="mindserver_host"
             className="input-box w-full"
             value={settings.mindserver_host}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, mindserver_host: event.target.value})
+            }}
           />
         </div>
 
@@ -235,7 +233,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="mindserver_port"
             className="input-box w-full"
             value={settings.mindserver_port}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, mindserver_port: Number(event.target.value)})
+            }}
           />
         </div>
 
@@ -250,7 +250,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="base_profile"
             className="input-box w-full"
             value={settings.base_profile}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, base_profile: event.target.value})
+            }}
           />
         </div>
 
@@ -265,7 +267,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="load_memory"
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-600 rounded-md"
             checked={settings.load_memory}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, load_memory: event.target.checked})
+            }}
           />
         </div>
 
@@ -279,7 +283,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="init_message"
             className="input-box w-full"
             value={settings.init_message}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, init_message: event.target.value})
+            }}
           />
         </div>
 
@@ -294,7 +300,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="only_chat_with"
             className="input-box w-full"
             value={settings.only_chat_with.join(', ')}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, only_chat_with: event.target.value.split(',').map(item => item.trim()).filter(item => item !== '')})
+            }}
           />
         </div>
 
@@ -309,7 +317,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="language"
             className="input-box w-full"
             value={settings.language}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, language: event.target.value})
+            }}
           />
         </div>
 
@@ -324,7 +334,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="show_bot_views"
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-600 rounded-md"
             checked={settings.show_bot_views}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, show_bot_views: event.target.checked})
+            }}
           />
         </div>
 
@@ -339,7 +351,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="allow_insecure_coding"
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-600 rounded-md"
             checked={settings.allow_insecure_coding}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, allow_insecure_coding: event.target.checked})
+            }}
           />
         </div>
 
@@ -354,7 +368,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="code_timeout_mins"
             className="input-box w-full"
             value={settings.code_timeout_mins}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, code_timeout_mins: Number(event.target.value)})
+            }}
           />
         </div>
 
@@ -369,7 +385,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="relevant_docs_count"
             className="input-box w-full"
             value={settings.relevant_docs_count}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, relevant_docs_count: Number(event.target.value)})
+            }}
           />
         </div>
 
@@ -384,7 +402,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="max_messages"
             className="input-box w-full"
             value={settings.max_messages}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, max_messages: Number(event.target.value)})
+            }}
           />
         </div>
 
@@ -399,7 +419,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="num_examples"
             className="input-box w-full"
             value={settings.num_examples}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, num_examples: Number(event.target.value)})
+            }}
           />
         </div>
 
@@ -414,7 +436,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="max_commands"
             className="input-box w-full"
             value={settings.max_commands}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, max_commands: Number(event.target.value)})
+            }}
           />
         </div>
 
@@ -429,7 +453,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="verbose_commands"
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-600 rounded-md"
             checked={settings.verbose_commands}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, verbose_commands: event.target.checked})
+            }}
           />
         </div>
 
@@ -444,7 +470,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="narrate_behavior"
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-600 rounded-md"
             checked={settings.narrate_behavior}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, narrate_behavior: event.target.checked})
+            }}
           />
         </div>
 
@@ -459,7 +487,9 @@ const AdvancedSettingsPage: React.FC = () => {
             id="chat_bot_messages"
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-600 rounded-md"
             checked={settings.chat_bot_messages}
-            onChange={handleInputChange}
+            onChange={(event) => {
+              setSettings({...settings, chat_bot_messages: event.target.checked})
+            }}
           />
         </div>
 

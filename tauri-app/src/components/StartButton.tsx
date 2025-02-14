@@ -2,18 +2,14 @@ import React from 'react';
 
 interface StartButtonProps {
   disabled?: boolean;
+  onClick: () => void;
 }
 
-const StartButton: React.FC<StartButtonProps> = ({ disabled = false }) => {
-  const handleClick = () => {
-    if (!disabled) {
-      console.log('Bot started');
-    }
-  };
-
+const StartButton: React.FC<StartButtonProps> = ({ disabled = false, onClick }) => {
+  
   return (
     <button
-      onClick={handleClick}
+      onClick={onClick}
       disabled={disabled}
       className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white ${
         disabled

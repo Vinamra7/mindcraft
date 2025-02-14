@@ -27,6 +27,8 @@ interface Profile {
 function App() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfiles, setSelectedProfiles] = useState<Profile[]>([]);
+  const [port, setPort] = useState(55916);
+  const [version, setVersion] = useState('1.20.4');
   // const [effectLock, setEffectLock] = useState(false); // To prevent race condition of useEffect
 
   const handleProfileSelect = (profiles: Profile[]) => {
@@ -156,14 +158,14 @@ function App() {
             <Routes>
               <Route
                 path="/"
-                element={<HomePage selectedProfiles={selectedProfiles} />}
+                element={<HomePage selectedProfiles={selectedProfiles} port={port} version={version} />}
               />
               <Route path="/api-key" element={<ApiKeyPage />} />
               <Route
                 path="/profile"
                 element={<ProfilePage setProfiles={setProfiles} />}
               />
-              <Route path="/advanced-settings" element={<AdvancedSettingsPage />} />
+              <Route path="/advanced-settings" element={<AdvancedSettingsPage onPortChange={(v: number) => setPort(v)} onVersionChange={(v: string) => setVersion(v)}/>} />
             </Routes>
           </div>
         </div>

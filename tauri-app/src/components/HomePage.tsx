@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
 import { KeyRound, UserRound } from 'lucide-react';
 import StartButton from './StartButton';
 import TaskSection from './TaskSection';
+import StartPopUp from './StartPopUp';
 
 interface ModelConfig {
   api: string;
@@ -19,9 +20,27 @@ interface Profile {
 
 interface HomePageProps {
   selectedProfiles: Profile[];
+  port: number;
+  version: string;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ selectedProfiles }) => {
+const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) => {
+
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const handleStartClick = () =>{
+    setIsPopupOpen(true);
+  }
+
+  const handlePopUpClose = () =>{
+    setIsPopupOpen(false);
+  }
+
+  const handleStart = () =>{
+    alert("Start");
+    setIsPopupOpen(false);
+  }
+
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <h1 className="text-4xl font-bold mb-6">MINDCRAFT</h1>
@@ -42,8 +61,16 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfiles }) => {
             selectedProfiles.map((profile) => profile.name).join(', ') : 'None'}
         </p>
       </div>
-      <StartButton disabled={selectedProfiles.length === 0} />
+      <StartButton disabled={selectedProfiles.length === 0} onClick={handleStartClick}/>
       <TaskSection />
+      <StartPopUp 
+      isOpen = {isPopupOpen}
+      onClose = {handlePopUpClose}
+      onStart = {handleStart}
+      version={version}
+      port={port}
+      selectedProfiles={selectedProfiles.map((profile) => profile.name)}
+      />
     </div>
   );
 };
