@@ -8,6 +8,7 @@ import AdvancedSettingsPage from './components/AdvancedSettingsPage';
 import toast, { Toaster } from 'react-hot-toast';
 import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile, readDir, remove } from '@tauri-apps/plugin-fs';
 import {ask} from '@tauri-apps/plugin-dialog';
+import {settings as St} from './components/AdvancedSettingsPage'
 
 interface ModelConfig {
   api: string;
@@ -83,7 +84,14 @@ function App() {
         
         const loadedProfiles: Profile[] = [];
         for (const entry of entries) {
-          if (!entry.name || !entry.name.endsWith('.json') ||  entry.name === 'keys.json' || entry.name === 'settings.json') continue;
+          if (!entry.name || !entry.name.endsWith('.json') ||  entry.name === 'keys.json') continue;
+          if(entry.name === 'settings.json'){
+            const fileContent = await readTextFile(entry.name, { baseDir: BaseDirectory.AppData });
+            const settings = JSON.parse(fileContent) as St;
+            setPort(settings.port);
+            setVersion(settings.minecraft_version);
+            continue;
+          }
           try {
             const fileContent = await readTextFile(entry.name, { baseDir: BaseDirectory.AppData });
             const profile = JSON.parse(fileContent) as Profile;

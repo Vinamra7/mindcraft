@@ -9,7 +9,7 @@ interface AdvancedSettingsPageProps {
   onVersionChange: (version: string) => void;
 }
 
-interface settings {
+export interface settings {
   minecraft_version: string;
   host: string;
   port: number;
@@ -166,6 +166,7 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
             onChange={(event) => {
               setSettings({...settings, port: Number(event.target.value)})
             }}
+           onWheel={e => e.target instanceof HTMLElement && e.target.blur()}
           />
         </div>
 
@@ -236,6 +237,7 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
             onChange={(event) => {
               setSettings({...settings, mindserver_port: Number(event.target.value)})
             }}
+           onWheel={e => e.target instanceof HTMLElement && e.target.blur()}
           />
         </div>
 
@@ -371,6 +373,7 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
             onChange={(event) => {
               setSettings({...settings, code_timeout_mins: Number(event.target.value)})
             }}
+           onWheel={e => e.target instanceof HTMLElement && e.target.blur()}
           />
         </div>
 
@@ -388,6 +391,7 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
             onChange={(event) => {
               setSettings({...settings, relevant_docs_count: Number(event.target.value)})
             }}
+           onWheel={e => e.target instanceof HTMLElement && e.target.blur()}
           />
         </div>
 
@@ -405,6 +409,7 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
             onChange={(event) => {
               setSettings({...settings, max_messages: Number(event.target.value)})
             }}
+           onWheel={e => e.target instanceof HTMLElement && e.target.blur()}
           />
         </div>
 
@@ -422,6 +427,7 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
             onChange={(event) => {
               setSettings({...settings, num_examples: Number(event.target.value)})
             }}
+           onWheel={e => e.target instanceof HTMLElement && e.target.blur()}
           />
         </div>
 
@@ -439,6 +445,7 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
             onChange={(event) => {
               setSettings({...settings, max_commands: Number(event.target.value)})
             }}
+           onWheel={e => e.target instanceof HTMLElement && e.target.blur()}
           />
         </div>
 
