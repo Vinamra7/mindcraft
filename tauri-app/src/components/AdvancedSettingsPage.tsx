@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Info } from 'lucide-react';
 import { mkdir, exists, BaseDirectory, writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
@@ -62,6 +62,8 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
     narrate_behavior: true,
     chat_bot_messages: true,
   });
+  // Global storage for saved settings
+  const originalSettingsRef = useRef<settings>(settings);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -70,8 +72,9 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
           return;
         }
         const settingsString = await readTextFile('settings.json', { baseDir: BaseDirectory.AppData });
-        const loadedSettings = JSON.parse(settingsString);
+        const loadedSettings = JSON.parse(settingsString); // declared locally
         setSettings(loadedSettings);
+        originalSettingsRef.current = loadedSettings;
       } catch (error) {
         console.error('Error loading saved settings:', error);
       }
@@ -102,7 +105,11 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
         success: 'Settings saved successfully.',
         error: 'Failed to save settings. Please try again.',
       }
-    );
+    ).then(() => {originalSettingsRef.current = settings;});
+  };
+
+  const handleCancel = () => {
+    setSettings(originalSettingsRef.current);
   };
 
   const Hint: React.FC<{ text: string }> = ({ text }) => (
@@ -507,12 +514,12 @@ const AdvancedSettingsPage: React.FC<AdvancedSettingsPageProps> = ({onPortChange
           Save Settings
         </button>
       </form>
-      <button
-        onClick={() => navigate(-1)}
-        className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-      >
-        Back
-      </button>
+        <button
+          onClick={() => { handleCancel(); navigate(-1); }}
+          className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        >
+          Back
+        </button>
     </div>
   );
 };
