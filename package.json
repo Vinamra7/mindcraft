@@ -27,11 +27,8 @@
         "yargs": "^17.7.2"
     },
     "scripts": {
-        "postinstall": "patch-package",
-        "start": "node main.js",
-        "build-win": "nexe main.js --target windows-x64 --build --verbose -o tauri-app/src-tauri/bin/windows",
-        "build-linux": "nexe main.js --target linux-x64 --build --verbose -o tauri-app/src-tauri/bin/linux",
-        "build-mac": "nexe main.js --target macos-arm64 --build --verbose -o tauri-app/src-tauri/bin/mac"
+    "postinstall": "patch-package",
+    "start": "node main.js"
     },
     "devDependencies": {
         "@eslint/js": "^9.13.0",

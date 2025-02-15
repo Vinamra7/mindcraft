@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 
-const TaskSection: React.FC = () => {
+interface TaskSectionProps {
+  setTaskPath: (path: string) => void;
+  setTaskId: (id: string) => void;
+  taskPath: string;
+  taskId: string;
+}
+
+
+const TaskSection: React.FC<TaskSectionProps> = ({setTaskPath, setTaskId, taskPath, taskId}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -32,6 +40,8 @@ const TaskSection: React.FC = () => {
               id="taskPath"
               className="w-full px-3 py-2 border rounded-md bg-gray-700 text-white"
               placeholder="Enter task path"
+              value={taskPath}
+              onChange={(e) => setTaskPath(e.target.value)}
             />
           </div>
           <div>
@@ -41,6 +51,8 @@ const TaskSection: React.FC = () => {
               id="taskId"
               className="w-full px-3 py-2 border rounded-md bg-gray-700 text-white"
               placeholder="Enter task ID"
+              value={taskId}
+              onChange={(e) => setTaskId(e.target.value)}
             />
           </div>
         </div>

@@ -4,6 +4,8 @@ import { KeyRound, UserRound } from 'lucide-react';
 import StartButton from './StartButton';
 import TaskSection from './TaskSection';
 import StartPopUp from './StartPopUp';
+import { appDataDir, join  } from '@tauri-apps/api/path';
+// import { Command } from '@tauri-apps/plugin-shell';
 
 interface ModelConfig {
   api: string;
@@ -27,6 +29,8 @@ interface HomePageProps {
 const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) => {
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [taskPath, setTaskPath] = useState('');
+  const [taskId, setTaskId] = useState('');
 
   const handleStartClick = () =>{
     setIsPopupOpen(true);
@@ -36,8 +40,13 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) 
     setIsPopupOpen(false);
   }
 
-  const handleStart = () =>{
-    alert("Start");
+  const handleStart = async() =>{
+    console.log("Start, taskPath: " + taskPath + ", taskId: " + taskId);
+    const appDataDirPath = await appDataDir();
+    const profilePaths: string[] = await Promise.all(selectedProfiles.map(async (profile) => {
+      return join(appDataDirPath, `${profile.name}.json`);
+    }));
+    console.log(profilePaths);
     setIsPopupOpen(false);
   }
 
@@ -62,7 +71,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) 
         </p>
       </div>
       <StartButton disabled={selectedProfiles.length === 0} onClick={handleStartClick}/>
-      <TaskSection />
+      <TaskSection setTaskPath={setTaskPath} setTaskId={setTaskId} taskPath={taskPath} taskId={taskId}/>
       <StartPopUp 
       isOpen = {isPopupOpen}
       onClose = {handlePopUpClose}
