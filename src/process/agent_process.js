@@ -1,68 +1,70 @@
-import { spawn } from 'child_process';
-import process from 'process';
+import { Agent } from '../agent/agent.js';
 import { mainProxy } from './main_proxy.js';
 
 export class AgentProcess {
-    start(profile, load_memory=false, init_message=null, count_id=0, task_path=null, task_id=null) {
+    constructor() {
+        this.running = false;
+        this.agent = null;
+        this.profile = null;
+        this.count_id = null;
+        this.retryCount = 0;
+        this.maxRetries = 3;
+    }
+
+    get shouldRetry() {
+        return this.retryCount < this.maxRetries;
+    }
+
+    async start(profile, load_memory=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.profile = profile;
         this.count_id = count_id;
-        this.running = true;
 
-        let args = ['src/process/init_agent.js', this.name];
-        args.push('-p', profile);
-        args.push('-c', count_id);
-        if (load_memory)
-            { args.push('-l', load_memory); }
-        if (init_message)
-            { args.push('-m', init_message); }
-        if (task_path)
-            { args.push('-t', task_path); }
-        if (task_id)
-           { args.push('-i', task_id); }
-
-        const agentProcess = spawn('node', args, {
-            stdio: 'inherit',
-            stderr: 'inherit',
-        });
-        
-        let last_restart = Date.now();
-        agentProcess.on('exit', (code, signal) => {
-            console.log(`Agent process exited with code ${code} and signal ${signal}`);
+        try {
+            console.log('Starting agent with profile:', profile);
+            this.agent = new Agent();
+            await this.agent.start(profile, load_memory, init_message, count_id, task_path, task_id);
+            this.running = true;
+            this.retryCount = 0; // Reset retry count on successful start
+        } catch (error) {
             this.running = false;
             mainProxy.logoutAgent(this.name);
+            console.error('Agent failed:', error);
             
-            if (code > 1) {
-                console.log(`Ending task`);
-                process.exit(code);
+            if (this.shouldRetry) {
+                this.retryCount++;
+                console.log(`Retrying... Attempt ${this.retryCount} of ${this.maxRetries}`);
+                await this.start(profile, true, 'Agent restarted after error', count_id, task_path, task_id);
+            } else {
+                throw new Error(`Agent failed to start after ${this.maxRetries} attempts: ${error.message}`);
             }
-
-            if (code !== 0 && signal !== 'SIGINT') {
-                // agent must run for at least 10 seconds before restarting
-                if (Date.now() - last_restart < 10000) {
-                    console.error(`Agent process ${profile} exited too quickly and will not be restarted.`);
-                    return;
-                }
-                console.log('Restarting agent...');
-                this.start(profile, true, 'Agent process restarted.', count_id, task_path, task_id);
-                last_restart = Date.now();
-            }
-        });
-    
-        agentProcess.on('error', (err) => {
-            console.error('Agent process error:', err);
-        });
-
-        this.process = agentProcess;
-    }
-
-    stop() {
-        if (!this.running) { return; }
-        this.process.kill('SIGINT');
-    }
-
-    continue() {
-        if (!this.running) {
-            this.start(this.profile, true, 'Agent process restarted.', this.count_id);
         }
+    }
+
+    async stop() {
+        if (!this.running) return;
+        
+        try {
+            this.running = false;
+            if (this.agent) {
+                await this.agent.stop();
+                await this.cleanup();
+            }
+        } catch (error) {
+            console.error('Error during agent shutdown:', error);
+        } finally {
+            mainProxy.logoutAgent(this.name);
+            this.agent = null;
+        }
+    }
+
+    async continue() {
+        if (!this.running) {
+            await this.start(this.profile, true, 'Agent process restarted.', this.count_id);
+        }
+    }
+
+    async cleanup() {
+        // Add any necessary cleanup logic
+        // For example: closing connections, clearing caches, etc.
     }
 }
