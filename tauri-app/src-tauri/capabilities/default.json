@@ -5,6 +5,9 @@
   "windows": [
     "main"
   ],
+  "allowList": {
+    "shell": {"execute": true}
+  },
   "permissions": [
     "core:default",
     "opener:default",
