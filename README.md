@@ -1,5 +1,11 @@
 # Mindcraft 🧠⛏️
 
+This is a launcher for Mindcraft, a fork of the original [Mindcraft project](https://github.com/kolbytn/mindcraft.git). The project is currently in very early development stages.
+
+> **Note**: Some terminal commands may not display output, but they are still executing in the background.
+
+[⬇️ Download Setup (Windows-64-bit)](https://raw.githubusercontent.com/Vinamra7/mindcraft/desktop-app/Mindcraft_0.0.1_x64-setup.exe)
+
 Crafting minds for Minecraft with LLMs and [Mineflayer!](https://prismarinejs.github.io/mineflayer/#/)
 
 [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Video Tutorial](https://www.youtube.com/watch?v=gRotoL8P8D8) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
@@ -154,3 +160,4 @@ Some of the node modules that we depend on have bugs in them. To add a patch, ch
     url={https://github.com/kolbytn/mindcraft}
 }
 ```
+
