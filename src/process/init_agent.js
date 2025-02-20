@@ -1,3 +1,4 @@
+/* global process */
 import { Agent } from '../agent/agent.js';
 import yargs from 'yargs';
 
@@ -58,7 +59,8 @@ const argv = yargs(args)
         await agent.start(argv.profile, argv.load_memory, argv.init_message, argv.count_id, argv.task_path, argv.task_id);
     } catch (error) {
         console.error('Failed to start agent process:');
-        console.error(error);
+        console.error(error.message);
+        console.error(error.stack);
         process.exit(1);
     }
 })();

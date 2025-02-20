@@ -1,0 +1,36 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main"
+  ],
+  "allowList": {
+    "shell": {"execute": true}
+  },
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "fs:write-files",
+    "fs:write-all",
+    "fs:allow-open",
+    "fs:read-files",
+    "fs:read-all",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$APPDATA"
+        },
+        {
+          "path": "$APPDATA/**"
+        },
+        {
+          "path": "**/*"
+        }
+      ]
+    },
+    "dialog:default",
+    "shell:default"
+  ]
+}

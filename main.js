@@ -1,3 +1,4 @@
+/* global process */
 import { AgentProcess } from './src/process/agent_process.js';
 import settings from './settings.js';
 import yargs from 'yargs';
