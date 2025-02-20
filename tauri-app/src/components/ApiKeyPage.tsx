@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 const providers = [
   "OPENAI API", "OPENAI ORG", "GEMINI", "ANTHROPIC", 
   "REPLICATE", "GROQ CLOUD", "HUGGINGFACE", "QWEN", 
-  "XAI", "MISTRAL", "DEEPSEEK"
+  "XAI", "MISTRAL", "DEEPSEEK", "NOVITA", "OPENROUTER"
 ];
 
 const ApiKeyPage: React.FC = () => {
@@ -27,7 +27,9 @@ const ApiKeyPage: React.FC = () => {
     "QWEN": "QWEN_API_KEY",
     "XAI": "XAI_API_KEY",
     "MISTRAL": "MISTRAL_API_KEY",
-    "DEEPSEEK": "DEEPSEEK_API_KEY"
+    "DEEPSEEK": "DEEPSEEK_API_KEY",
+    "NOVITA": "NOVITA_API_KEY",
+    "OPENROUTER": "OPENROUTER_API_KEY"
   };
 
   useEffect(() => {
