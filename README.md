@@ -1,6 +1,8 @@
 # Mindcraft 🧠⛏️
 
-This is a launcher for Mindcraft, a fork of the original [Mindcraft project](https://github.com/kolbytn/mindcraft.git). The project is currently in very early development stages.
+This is a launcher for Mindcraft, a fork of the original [Mindcraft project](https://github.com/kolbytn/mindcraft.git). 
+The project is currently in very early development stages. <br>
+I am working on patches suggested by [@uukelele-scratch](https://github.com/uukelele-scratch)
 
 > **Note**: Some terminal commands may not display output, but they are still executing in the background.
 
