@@ -1,12 +1,20 @@
 # Mindcraft 🧠⛏️
 
 This is a launcher for Mindcraft, a fork of the original [Mindcraft project](https://github.com/kolbytn/mindcraft.git). 
+<br><br>
 The project is currently in very early development stages. <br>
+
+[⬇️ Download Setup (Windows-64-bit)](https://raw.githubusercontent.com/Vinamra7/mindcraft/desktop-app/Mindcraft_0.0.2_x64-setup.exe)
+
+### v0.0.2 updates:
+- Fixed command prompt pop-up issue
+- Added terminal auto-scroll functionality
+- Disabled configuration modification while bot is active
+- Updated terminal UI for better usability
+
 I am working on patches suggested by [@uukelele-scratch](https://github.com/uukelele-scratch)
 
 > **Note**: Some terminal commands may not display output, but they are still executing in the background.
-
-[⬇️ Download Setup (Windows-64-bit)](https://raw.githubusercontent.com/Vinamra7/mindcraft/desktop-app/Mindcraft_0.0.1_x64-setup.exe)
 
 Crafting minds for Minecraft with LLMs and [Mineflayer!](https://prismarinejs.github.io/mineflayer/#/)
 

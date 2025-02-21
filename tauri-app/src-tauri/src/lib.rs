@@ -2,14 +2,16 @@ use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-
+use std::os::windows::process::CommandExt;
 use tauri::async_runtime::spawn;
 use tauri::{Emitter, Runtime}; // Note: Emitter is imported here so that .emit() is in scope
 
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 /// Checks if a program is available using the “where” command.
 fn is_program_installed(program: &str) -> bool {
   Command::new("where")
+  .creation_flags(CREATE_NO_WINDOW)
     .arg(program)
     .output()
     .map(|output| output.status.success())
@@ -20,8 +22,9 @@ fn is_program_installed(program: &str) -> bool {
 /// Returns an error message if winget isn’t installed or the install fails.
 fn install_program(package_name: &str) -> Result<(), String> {
   // Check if winget exists by querying its version.
-  if Command::new("winget").arg("--version").output().is_ok() {
+  if Command::new("winget").creation_flags(CREATE_NO_WINDOW).arg("--version").output().is_ok() {
     let output = Command::new("winget")
+    .creation_flags(CREATE_NO_WINDOW)
       .args(&[
         "install",
         package_name,
@@ -50,6 +53,7 @@ fn install_program(package_name: &str) -> Result<(), String> {
 /// Clones the repository (branch 'desktop-app') to the given directory.
 fn clone_repository(repo_dir: &PathBuf) -> Result<(), String> {
   let output = Command::new("git")
+  .creation_flags(CREATE_NO_WINDOW)
     .args(&[
       "clone",
       "-b",
@@ -69,10 +73,10 @@ fn clone_repository(repo_dir: &PathBuf) -> Result<(), String> {
   Ok(())
 }
 
-/// Installs npm dependencies from the repository directory.
 fn install_dependencies<R: Runtime>(repo_dir: &PathBuf, window: &tauri::Window<R>) -> Result<(), String> {
     println!("Installing dependencies in: {:?}", repo_dir);
     let mut child = Command::new("npm.cmd")
+    .creation_flags(CREATE_NO_WINDOW)
         .current_dir(repo_dir)
         .arg("install")
         .stdout(Stdio::piped())
@@ -80,30 +84,39 @@ fn install_dependencies<R: Runtime>(repo_dir: &PathBuf, window: &tauri::Window<R
         .spawn()
         .map_err(|e| e.to_string())?;
 
-    // Process stdout
+    // Handle stdout in a separate task
     if let Some(stdout) = child.stdout.take() {
-        let reader = BufReader::new(stdout);
-        for line in reader.lines() {
-            if let Ok(line) = line {
-                let _ = window.emit("setup-status", format!("[npm install] {}", line));
-            }
-        }
+        let window_clone = window.clone();
+        spawn(async move {
+            let reader = BufReader::new(stdout);
+            reader.lines().for_each(|line| {
+                if let Ok(line) = line {
+                  println!("line: {:?}", line);
+                    let _ = window_clone.emit("install-status", &line);
+                }
+            });
+        });
     }
 
-    // Process stderr
+    // Handle stderr in a separate task
     if let Some(stderr) = child.stderr.take() {
-        let reader = BufReader::new(stderr);
-        for line in reader.lines() {
-            if let Ok(line) = line {
-                let _ = window.emit("setup-status", format!("[npm install] {}", line));
-            }
-        }
+        let window_clone = window.clone();
+        spawn(async move {
+            let reader = BufReader::new(stderr);
+            reader.lines().for_each(|line| {
+                if let Ok(line) = line {
+                  println!("line: {:?}", line);
+                    let _ = window_clone.emit("install-error", &line);
+                }
+            });
+        });
     }
 
     let status = child.wait().map_err(|e| e.to_string())?;
     if !status.success() {
         return Err("Failed to install dependencies".into());
     }
+    let _ = window.emit("install-status", "Dependencies installed successfully!");
     Ok(())
 }
 
@@ -111,7 +124,7 @@ fn install_dependencies<R: Runtime>(repo_dir: &PathBuf, window: &tauri::Window<R
 /// - Ensuring Git and Node.js are installed (installing via winget if needed)
 /// - Cloning the repository (if not already present)
 /// - Installing npm dependencies
-/// This function emits "setup-status" events for UI feedback.
+/// This function emits "setup--status" events for UI feedback.
 #[tauri::command]
 async fn setup_environment<R: Runtime>(window: tauri::Window<R>) -> Result<(), String> {
   // Function to emit status updates to the frontend.
@@ -149,7 +162,7 @@ async fn setup_environment<R: Runtime>(window: tauri::Window<R>) -> Result<(), S
   }
   println!("repo dir: {:?}", repo_dir);
 
-  emit_status("Installing dependencies...");
+  emit_status("Installing dependencies please wait it may take a while...");
   install_dependencies(&repo_dir, &window)?;
 
   emit_status("Setup completed successfully!");
@@ -167,6 +180,7 @@ async fn run_node_app<R: Runtime>(
   let repo_dir = PathBuf::from(app_data).join("com.mindcraft.app").join("node-app");
 
   let mut child = Command::new("node")
+    .creation_flags(CREATE_NO_WINDOW)
     .current_dir(&repo_dir)
     .arg("main.js")
     .args(&command_args)
@@ -210,6 +224,7 @@ async fn run_node_app<R: Runtime>(
 #[tauri::command]
 fn terminate_process(pid: u32) -> Result<(), String> {
   let status = Command::new("taskkill")
+    .creation_flags(CREATE_NO_WINDOW)
     .args(&["/PID", &pid.to_string(), "/F"])
     .status()
     .map_err(|e| e.to_string())?;
