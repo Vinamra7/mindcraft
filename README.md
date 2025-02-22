@@ -5,7 +5,9 @@ This is a <strong>launcher for Mindcraft</strong>, a fork of the original [Mindc
 The project is currently in very early development stages. <br>
 
 [⬇️ Download Setup (pre-alpha) (Windows-64-bit)](https://raw.githubusercontent.com/Vinamra7/mindcraft/desktop-app/Mindcraft_0.1.0_x64-setup.exe)
-
+> **✏️ Security Note:**  
+> This app is new and currently unsigned, so Windows Defender might flag it as a precaution. Since the app is open source, you can review its code to verify its safety. Mindcraft-launcher is completely safe to use.
+<br>
 <details>
   <summary>
     Version Updates 🔄
