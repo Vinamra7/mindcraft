@@ -131,6 +131,9 @@ fn install_dependencies<R: Runtime>(repo_dir: &PathBuf, window: &tauri::Window<R
         return Err("Failed to install dependencies".into());
     }
     let _ = window.emit("install-status", "Dependencies installed successfully!");
+
+    //remove the pid from the list
+    PROCESS_IDS.lock().unwrap().remove(&child.id());
     Ok(())
 }
 
@@ -177,7 +180,7 @@ async fn setup_environment<R: Runtime>(window: tauri::Window<R>) -> Result<(), S
   println!("repo dir: {:?}", repo_dir);
 
   emit_status("Installing dependencies please wait it may take a while...");
-  install_dependencies(&repo_dir, &window)?;
+  install_dependencies(&repo_dir, &window)?; 
 
   emit_status("Setup completed successfully!");
   Ok(())
@@ -235,33 +238,46 @@ async fn run_node_app<R: Runtime>(
   Ok(pid)
 }
 
-/// Terminates a process based on the provided PID.
+
 #[tauri::command]
-fn terminate_process(pid_: u32) -> Result<(), String> {
-  track_process(pid_);
-  let pids = PROCESS_IDS.lock().unwrap();
+async fn terminate_process(pid_: u32) -> Result<(), String> {
 
-  let mut error_message = String::from("");
+    track_process(pid_);
 
-  for pid in pids.iter(){
-    let status = Command::new("taskkill")
-    .creation_flags(CREATE_NO_WINDOW)
-    .args(&["/PID", &pid.to_string(), "/F"])
-    .status()
-    .map_err(|e| e.to_string())?;
-    if !status.success() {
-      error_message.push_str(&format!("Failed to terminate process with PID {}: {}\n", pid, status));
+    let pids: Vec<u32> = {
+        let pids = PROCESS_IDS.lock().unwrap();
+        pids.iter().cloned().collect()
+    };
+
+    let mut error_message = String::new();
+
+    for pid in pids {
+        let taskkill_status = tauri::async_runtime::spawn_blocking(move || {
+            Command::new("taskkill")
+                .creation_flags(CREATE_NO_WINDOW)
+                .args(&["/PID", &pid.to_string(), "/F"])
+                .status()
+        })
+        .await
+        .map_err(|e| e.to_string())?  
+        .map_err(|e| e.to_string())?; 
+
+        if !taskkill_status.success() {
+            error_message.push_str(&format!(
+                "Failed to terminate process with PID {}: {:?}\n",
+                pid, taskkill_status
+            ));
+        }
+        else{println!("Process with PID {} terminated successfully", pid);}
     }
-  }
-
-  // clear the process ids
-  PROCESS_IDS.lock().unwrap().clear();
-
-  if !error_message.is_empty() {
-    return Err(error_message);
-  }
-  Ok(())
+    PROCESS_IDS.lock().unwrap().clear();
+    if !error_message.is_empty() {
+        Err(error_message)
+    } else {
+        Ok(())
+    }
 }
+
 
 /// Entry point for the Tauri application.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
