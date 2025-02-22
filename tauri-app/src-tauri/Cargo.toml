@@ -1,6 +1,6 @@
 [package]
 name = "Mindcraft"
-version = "0.0.2"
+version = "0.1.0"
 description = "Crafting minds for Minecraft with LLMs and Mineflayer!"
 authors = ["you"]
 edition = "2021"
@@ -25,4 +25,5 @@ serde_json = "1"
 tauri-plugin-fs = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-shell = "2"
+lazy_static = "1.5.0"
 

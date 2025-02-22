@@ -5,8 +5,20 @@ use std::process::{Command, Stdio};
 use std::os::windows::process::CommandExt;
 use tauri::async_runtime::spawn;
 use tauri::{Emitter, Runtime}; // Note: Emitter is imported here so that .emit() is in scope
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+use std::collections::HashSet;
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+lazy_static! {
+  static ref PROCESS_IDS: Mutex<HashSet<u32>> = Mutex::new(HashSet::new());
+}
+
+fn track_process(pid: u32){
+  let mut pids = PROCESS_IDS.lock().unwrap();
+  pids.insert(pid);
+}
 
 /// Checks if a program is available using the “where” command.
 fn is_program_installed(program: &str) -> bool {
@@ -83,6 +95,8 @@ fn install_dependencies<R: Runtime>(repo_dir: &PathBuf, window: &tauri::Window<R
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
+
+      track_process(child.id());
 
     // Handle stdout in a separate task
     if let Some(stdout) = child.stdout.take() {
@@ -190,6 +204,7 @@ async fn run_node_app<R: Runtime>(
     .map_err(|e| e.to_string())?;
 
   let pid = child.id();
+  track_process(pid);
 
   // Process stdout stream.
   if let Some(stdout) = child.stdout.take() {
@@ -222,18 +237,30 @@ async fn run_node_app<R: Runtime>(
 
 /// Terminates a process based on the provided PID.
 #[tauri::command]
-fn terminate_process(pid: u32) -> Result<(), String> {
-  let status = Command::new("taskkill")
+fn terminate_process(pid_: u32) -> Result<(), String> {
+  track_process(pid_);
+  let pids = PROCESS_IDS.lock().unwrap();
+
+  let mut error_message = String::from("");
+
+  for pid in pids.iter(){
+    let status = Command::new("taskkill")
     .creation_flags(CREATE_NO_WINDOW)
     .args(&["/PID", &pid.to_string(), "/F"])
     .status()
     .map_err(|e| e.to_string())?;
-
-  if status.success() {
-    Ok(())
-  } else {
-    Err("Failed to terminate process".into())
+    if !status.success() {
+      error_message.push_str(&format!("Failed to terminate process with PID {}: {}\n", pid, status));
+    }
   }
+
+  // clear the process ids
+  PROCESS_IDS.lock().unwrap().clear();
+
+  if !error_message.is_empty() {
+    return Err(error_message);
+  }
+  Ok(())
 }
 
 /// Entry point for the Tauri application.
