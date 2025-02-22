@@ -29,7 +29,10 @@
     },
     "scripts": {
     "postinstall": "patch-package",
-    "start": "node main.js"
+    "start": "node main.js",
+    "build:major": "python scripts/update_version.py major && cd tauri-app && npm run tauri build",
+    "build:minor": "python scripts/update_version.py minor && cd tauri-app && npm run tauri build",
+    "build:patch": "python scripts/update_version.py patch && cd tauri-app && npm run tauri build"
     },
     "devDependencies": {
         "@eslint/js": "^9.13.0",

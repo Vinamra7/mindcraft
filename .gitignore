@@ -13,4 +13,7 @@ services/viaproxy/plugins/**
 services/viaproxy/ViaLoader/**
 services/viaproxy/saves.json
 services/viaproxy/viaproxy.yml
+tmp/
+wandb/
+experiments/
 **/bin/

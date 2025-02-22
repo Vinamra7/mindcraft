@@ -1,32 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { TerminalMessasge } from "./HomePage";
 
 interface TerminalProps {
   setIsTerminalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  messages: TerminalMessasge[];
+  setMessages: React.Dispatch<React.SetStateAction<TerminalMessasge[]>>;
+
 }
 
-const Terminal: React.FC<TerminalProps> = ({setIsTerminalOpen}) => {
-  const [status, setStatus] = useState<string>("");
-  const [nodeOut, setNodeOut] = useState<string>("");
-  const [nodeErr, setNodeErr] = useState<string>("");
+const Terminal: React.FC<TerminalProps> = ({ setIsTerminalOpen, messages, setMessages }) => {
+  const [activeTab, setActiveTab] = useState<"output" | "error">("output");
+
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const unsubscribers: Promise<() => void>[] = [];
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    
+    const unsubscribers: Promise<(() => void)>[] = [];
+
+    // Setup status listener
     unsubscribers.push(
       listen("setup-status", (event) => {
-        setStatus(event.payload as string);
+        setMessages(prev => [...prev, { type: 'output', content: event.payload as string }]);
       })
     );
 
+    // Install status listener
+    unsubscribers.push(
+      listen("install-status", (event) => {
+        setMessages(prev => [...prev, { type: 'output', content: event.payload as string }]);
+      })
+    );
+
+    // Install error listener
+    unsubscribers.push(
+      listen("install-error", (event) => {
+        setMessages(prev => [...prev, { type: 'error', content: event.payload as string }]);
+      })
+    );
+
+    // Node output listener
     unsubscribers.push(
       listen("node-output", (event) => {
-        setNodeOut((prev) => prev + "\n" + (event.payload as string));
+        setMessages(prev => [...prev, { type: 'output', content: event.payload as string }]);
       })
     );
 
+    // Node error listener
     unsubscribers.push(
       listen("node-error", (event) => {
-        setNodeErr((prev) => prev + "\n" + (event.payload as string));
+        setMessages(prev => [...prev, { type: 'error', content: event.payload as string }]);
       })
     );
 
@@ -38,11 +67,11 @@ const Terminal: React.FC<TerminalProps> = ({setIsTerminalOpen}) => {
     };
   }, []);
 
-  const displayMessage = () => {
-    if (status && status !== "Setup completed successfully!") return status;
-    else if (nodeOut) return nodeOut;
-    else if (nodeErr) return nodeErr;
-    else return "";
+  const displayMessages = () => {
+    return messages
+      .filter(msg => activeTab === "output" ? msg.type === 'output' : msg.type === 'error')
+      .map(msg => msg.content)
+      .join('\n');
   };
 
   return (
@@ -52,9 +81,26 @@ const Terminal: React.FC<TerminalProps> = ({setIsTerminalOpen}) => {
           {/* Terminal Header */}
           <div className="flex items-center justify-between bg-gray-800 rounded-t-lg px-4 py-2 border-b border-gray-700">
             <div className="flex space-x-2">
-              {/* <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <div className="w-3 h-3 rounded-full bg-green-500"></div> */}
+              <button
+                onClick={() => setActiveTab("output")}
+                className={`px-3 py-1 rounded ${
+                  activeTab === "output"
+                    ? "bg-green-600 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Output
+              </button>
+              <button
+                onClick={() => setActiveTab("error")}
+                className={`px-3 py-1 rounded ${
+                  activeTab === "error"
+                    ? "bg-red-600 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Error
+              </button>
             </div>
             <div className="text-gray-400 text-sm">Terminal Output</div>
             <button
@@ -66,9 +112,11 @@ const Terminal: React.FC<TerminalProps> = ({setIsTerminalOpen}) => {
           </div>
 
           {/* Terminal Content */}
-          <div className="terminal-scrollbar p-4 h-[calc(100%-40px)] overflow-y-auto">
-            <pre className="font-mono text-green-400 text-sm whitespace-pre-wrap">
-              <code>{`$ ${displayMessage()}`}</code>
+          <div
+          ref={terminalRef}
+          className="terminal-scrollbar p-4 h-[calc(100%-40px)] overflow-y-auto">
+            <pre className={`font-mono ${activeTab === "output" ? "text-green-400" : "text-red-400"} text-sm whitespace-pre-wrap`}>
+              <code>{`$ ${displayMessages()}`}</code>
             </pre>
           </div>
         </div>

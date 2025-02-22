@@ -1,38 +1,64 @@
 # Mindcraft 🧠⛏️
 
+This is a <strong>launcher for Mindcraft</strong>, a fork of the original [Mindcraft project](https://github.com/kolbytn/mindcraft.git). 
+<br><br>
+The project is currently in very early development stages. <br>
+
+[⬇️ Download Setup (pre-alpha) (Windows-64-bit)](https://raw.githubusercontent.com/Vinamra7/mindcraft/desktop-app/Mindcraft_0.1.0_x64-setup.exe)
+
+<details>
+  <summary>
+    Version Updates 🔄
+  </summary>
+  <div>
+    <h4>v0.1.0 updates:</h4>
+    <ul>
+      <li>Merge fix from original project</li>
+      <li>Better task termination</li>
+    </ul>
+    <h4>v0.0.2 updates:</h4>
+    <ul>
+      <li>Fixed command prompt pop-up issue</li>
+      <li>Added terminal auto-scroll functionality</li>
+      <li>Disabled configuration modification while bot is active</li>
+      <li>Updated terminal UI for better usability</li>
+    </ul>
+  </div>
+</details>
+
+<br>
+
+I am working on patches suggested by [@uukelele-scratch](https://github.com/uukelele-scratch)
+
+> **Note**: Some terminal commands may not display output, but they are still executing in the background.
+
 Crafting minds for Minecraft with LLMs and [Mineflayer!](https://prismarinejs.github.io/mineflayer/#/)
 
 [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Video Tutorial](https://www.youtube.com/watch?v=gRotoL8P8D8) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
 
 
 > [!Caution]
-Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. The code is sandboxed, but still vulnerable to injection attacks. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. Ye be warned.
+Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. The code is sandboxed, but still vulnerable to injection attacks. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `advance settings`. Ye be warned.
 
 ## Requirements
 
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc) (up to v1.21.1, recommend v1.20.4)
-- [Node.js Installed](https://nodejs.org/) (at least v14)
 - One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) | [Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download). | [Mistral API Key](https://docs.mistral.ai/getting-started/models/models_overview/) | [Qwen API Key [Intl.]](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key)/[[cn]](https://help.aliyun.com/zh/model-studio/getting-started/first-api-call-to-qwen?) | [Novita AI API Key](https://novita.ai/settings?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link#key-management) |
 
-## Install and Run
+> ## Manual Run Note
+> 
+> If you want to run Mindcraft without the launcher, you can find the Node.js source code in:
+>
+> ```
+> %APPDATA%/com.mindcraft.app
+> ```
+> 
+> Simply open that directory, install any required dependencies, and run the `main.js` file manually via Node.
 
-1. Make sure you have the requirements above.
-
-2. Clone or download this repository (big green button)
-
-3. Rename `keys.example.json` to `keys.json` and fill in your API keys (you only need one). The desired model is set in `andy.json` or other profiles. For other models refer to the table below.
-
-4. In terminal/command prompt, run `npm install` from the installed directory
-
-5. Start a minecraft world and open it to LAN on localhost port `55916`
-
-6. Run `node main.js` from the installed directory
-
-If you encounter issues, check the [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/mp73p35dzC). We are currently not very responsive to github issues.
 
 ## Model Customization
 
-You can configure project details in `settings.js`. [See file.](settings.js)
+You can configure project details in `Advanced Settings` (located in the sidebar).
 
 You can configure the agent's name, model, and prompts in their profile like `andy.json` with the `model` field. For comprehensive details, see [Model Specifications](#model-specifications).
 
@@ -55,7 +81,7 @@ If you use Ollama, to install the models used by default (generation and embeddi
 `ollama pull llama3 && ollama pull nomic-embed-text`
 
 ### Online Servers
-To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `settings.js`:
+To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `Advanced Settings`:
 ```javascript
 "host": "111.222.333.444",
 "port": 55920,
@@ -67,26 +93,6 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 > The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
 
 To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcer, then run `node main.js`, then switch to your main account after the bot has connected.
-
-### Docker Container
-
-If you intend to `allow_insecure_coding`, it is a good idea to run the app in a docker container to reduce risks of running unknown code. This is strongly recommended before connecting to remote servers.
-
-```bash
-docker run -i -t --rm -v $(pwd):/app -w /app -p 3000-3003:3000-3003 node:latest node main.js
-```
-or simply
-```bash
-docker-compose up
-```
-
-When running in docker, if you want the bot to join your local minecraft server, you have to use a special host address `host.docker.internal` to call your localhost from inside your docker container. Put this into your [settings.js](settings.js):
-
-```javascript
-"host": "host.docker.internal", // instead of "localhost", to join your local minecraft from inside the docker container
-```
-
-To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
 
 # Bot Profiles
 
@@ -136,7 +142,43 @@ Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `novit
 
 If you try to use an unsupported model, then it will default to a simple word-overlap method. Expect reduced performance, recommend mixing APIs to ensure embedding support.
 
-## Specifying Profiles via Command Line
+### Install and Run (for manual run)
+
+1. Make sure you have the requirements above.
+
+2. Clone or download this repository (big green button)
+
+3. Rename `keys.example.json` to `keys.json` and fill in your API keys (you only need one). The desired model is set in `andy.json` or other profiles. For other models refer to the table below.
+
+4. In terminal/command prompt, run `npm install` from the installed directory
+
+5. Start a minecraft world and open it to LAN on localhost port `55916`
+
+6. Run `node main.js` from the installed directory
+
+If you encounter issues, check the [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/mp73p35dzC). We are currently not very responsive to github issues.
+
+### Docker Container (for manual run)
+
+If you intend to `allow_insecure_coding`, it is a good idea to run the app in a docker container to reduce risks of running unknown code. This is strongly recommended before connecting to remote servers.
+
+```bash
+docker run -i -t --rm -v $(pwd):/app -w /app -p 3000-3003:3000-3003 node:latest node main.js
+```
+or simply
+```bash
+docker-compose up
+```
+
+When running in docker, if you want the bot to join your local minecraft server, you have to use a special host address `host.docker.internal` to call your localhost from inside your docker container. Put this into your [settings.js](settings.js):
+
+```javascript
+"host": "host.docker.internal", // instead of "localhost", to join your local minecraft from inside the docker container
+```
+
+To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
+
+### Specifying Profiles via Command Line (when running manually via `node main.js`)
 
 By default, the program will use the profiles specified in `settings.js`. You can specify one or more agent profiles using the `--profiles` argument: `node main.js --profiles ./profiles/andy.json ./profiles/jill.json`
 
@@ -154,3 +196,4 @@ Some of the node modules that we depend on have bugs in them. To add a patch, ch
     url={https://github.com/kolbytn/mindcraft}
 }
 ```
+

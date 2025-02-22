@@ -25,20 +25,26 @@ interface HomePageProps {
   selectedProfiles: Profile[];
   port: number;
   version: string;
+  appRunning: boolean;
+  setAppRunning: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) => {
+export interface TerminalMessasge{
+  type: string;
+  content: string;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version, appRunning, setAppRunning }) => {
 
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const openTerminalWindow = async () => {
     setIsTerminalOpen(true);
     console.log("Opening terminal window")
   }
-
+  const [terminalMessages, setTerminalMessages] = useState<TerminalMessasge[]>([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [taskPath, setTaskPath] = useState('');
   const [taskId, setTaskId] = useState('');
-  const [appRunning, setAppRunning] = useState(false);
   const [pId, setPId] = useState<unknown>(null);
 
   const handleStartClick = async() =>{
@@ -76,6 +82,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) 
       console.log("Command string:", commandString);
       setAppRunning(true);
       setIsPopupOpen(false);
+      setIsTerminalOpen(true);
       await invoke('setup_environment')
       .catch(error => {
         console.log("Error setting up environment:", error);
@@ -101,15 +108,28 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) 
       <div className="flex flex-col items-center justify-center p-4">
         <h1 className="text-4xl font-bold mb-6">MINDCRAFT</h1>
         <div className="flex space-x-4 mb-6">
-          <Link to="/api-key" className="flex items-center bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md">
+          <Link 
+            to="/api-key" 
+            onClick={(e) => appRunning && e.preventDefault()}
+            className={`flex items-center px-4 py-2 rounded-md ${
+              appRunning ? 'opacity-50 cursor-not-allowed bg-gray-800' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+          >
             <KeyRound className="mr-2" />
             API
           </Link>
-          <Link to="/profile" className="flex items-center bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md">
+          <Link 
+            to="/profile" 
+            onClick={(e) => appRunning && e.preventDefault()}
+            className={`flex items-center px-4 py-2 rounded-md ${
+              appRunning ? 'opacity-50 cursor-not-allowed bg-gray-800' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+          >
             <UserRound className="mr-2" />
             Profile
           </Link>
         </div>
+        
         <div className="bg-black bg-opacity-50 p-4 rounded-lg w-full max-w-md mb-6">
           <p className={selectedProfiles.length > 0 ? 'text-green-400' : 'text-red-500'}>
             Current Profile: {' '}
@@ -117,8 +137,17 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) 
               selectedProfiles.map((profile) => profile.name).join(', ') : 'None'}
           </p>
         </div>
+        
         <StartButton disabled={selectedProfiles.length === 0} isRunning={appRunning} onClick={handleStartClick}/>
-        <TaskSection setTaskPath={setTaskPath} setTaskId={setTaskId} taskPath={taskPath} taskId={taskId}/>
+        
+        <div className={`w-full ${appRunning ? 'opacity-50 pointer-events-none' : ''}`}>
+          <TaskSection 
+            setTaskPath={setTaskPath} 
+            setTaskId={setTaskId} 
+            taskPath={taskPath} 
+            taskId={taskId}
+          />
+        </div>
         <StartPopUp 
         isOpen = {isPopupOpen}
         onClose = {handlePopUpClose}
@@ -144,7 +173,11 @@ const HomePage: React.FC<HomePageProps> = ({ selectedProfiles, port, version }) 
       </div>
     );
   }
-  else return <Terminal setIsTerminalOpen={setIsTerminalOpen}/>;
+  else return <Terminal 
+  setIsTerminalOpen={setIsTerminalOpen}
+  messages={terminalMessages}
+  setMessages={setTerminalMessages}
+  />;
 };
 
 export default HomePage;

@@ -151,22 +151,25 @@ function App() {
     }
   }, [profiles]);// Run when profiles change
 
+  const [appRunning, setAppRunning] = useState(false);
   return (
     <Router>
       <div className="flex h-screen bg-gray-900 text-gray-100">
         <Toaster />
-        <Sidebar
-          profiles={profiles}
-          selectedProfiles={selectedProfiles}
-          onProfileSelect={handleProfileSelect}
-          onProfileDelete={handleProfileDelete}
-        />
+        <div className={`sidebar ${appRunning ? 'opacity-50 pointer-events-none' : ''}`}>
+          <Sidebar
+            profiles={profiles}
+            selectedProfiles={selectedProfiles}
+            onProfileSelect={handleProfileSelect}
+            onProfileDelete={handleProfileDelete}
+          />
+        </div>
         <div className="flex-1 flex flex-col items-center pt-10 overflow-auto">
           <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
             <Routes>
               <Route
                 path="/"
-                element={<HomePage selectedProfiles={selectedProfiles} port={port} version={version} />}
+                element={<HomePage selectedProfiles={selectedProfiles} port={port} version={version} appRunning={appRunning} setAppRunning={setAppRunning} />}
               />
               <Route path="/api-key" element={<ApiKeyPage />} />
               <Route
